@@ -580,6 +580,56 @@ Following are the different error codes that are returned by the SDK . Before re
 | **40004**      | Peer already joined                                    | Peer who is trying to join has already joined the room.                                                     |
 | **41001**      | Peer is gone                                           | The peer is no more present in the room.                                                                    |
 
+## 📞 CallKit Integration
+
+This fork includes specialized support for CallKit integration to prevent AVAudioSession race conditions. If you're building a VoIP calling app with CallKit, use the provided components to ensure proper audio session timing:
+
+### Quick Start with CallKit
+
+1. **Install the Audio Session Interceptor** (for debugging):
+```swift
+import UIKit
+
+@main 
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Install BEFORE any HMS code
+        AVAudioSessionInterceptor.install()
+        return true
+    }
+}
+```
+
+2. **Integrate with your CallKit Provider**:
+```swift
+import CallKit
+
+extension YourCallKitProvider: CXProviderDelegate {
+    func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
+        // Critical: Notify HMS when CallKit audio is ready
+        HMSCallKitManager.shared.callKitAudioDidActivate()
+    }
+    
+    func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {
+        HMSCallKitManager.shared.callKitAudioDidDeactivate()
+    }
+}
+```
+
+3. **Use Lazy HMS View** (waits for CallKit):
+```swift
+import SwiftUI
+
+HMSPrebuiltViewLazy(
+    token: "your-auth-token",
+    onDismiss: { /* handle call end */ }
+)
+```
+
+📖 **Complete Integration Guide**: [CallKit-Integration-Guide.md](CallKit-Integration-Guide.md)
+
+🧪 **Test Implementation**: See `Example/HMSSDKExample/Meeting/CallKitTestViewController.swift` for a complete test interface.
+
 👀 Checkout the sample implementation in the [Example app folder](https://github.com/100mslive/100ms-ios-sdk/tree/main/Example).
 
 📲 Download the 100ms fully featured Sample iOS app here: https://testflight.apple.com/join/dhUSE7N8

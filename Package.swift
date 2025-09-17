@@ -8,7 +8,10 @@ let package = Package(
     products: [
         .library(
             name: "HMSSDK",
-            targets: ["HMSSDK", "HMSWebRTC", "HMSSDKDependencies"])
+            targets: ["HMSSDK", "HMSWebRTC", "HMSSDKDependencies"]),
+        .library(
+            name: "HMSCallKitIntegration",
+            targets: ["HMSCallKitIntegration"])
     ],
     dependencies: [
         .package(name: "HMSAnalyticsSDK", url: "https://github.com/100mslive/100ms-ios-analytics-sdk", from: "0.0.2"),
@@ -24,6 +27,20 @@ let package = Package(
             url: "https://github.com/100mslive/webrtc-ios/releases/download/1.0.6173/HMSWebRTC.xcframework.zip",
             checksum: "629db2db22918b716175886454aaa3c0c1f03b0761578ba89cab257d4100e278"
         ),
-        .target(name: "HMSSDKDependencies", dependencies: ["HMSAnalyticsSDK"], path: "dependencies")
+        .target(name: "HMSSDKDependencies", dependencies: ["HMSAnalyticsSDK"], path: "dependencies"),
+        .target(
+            name: "HMSCallKitIntegration",
+            dependencies: ["HMSSDK"],
+            path: "Sources",
+            sources: [
+                "Diagnostics/AVAudioSessionInterceptor.swift",
+                "CallKit/HMSCallKitManager.swift", 
+                "LazySDK/HMSLazySDK.swift",
+                "RoomKitFork/HMSPrebuiltOptions.swift",
+                "RoomKitFork/HMSRoomModel.swift",
+                "RoomKitFork/HMSPrebuiltViewLazy.swift",
+                "Examples/CallKitIntegrationExample.swift"
+            ]
+        )
     ]
 )
